@@ -27,6 +27,9 @@ class TrainingInstance:
         self.s_c = x[t - lc: t].reshape(lc * 2, 20, 20)
         self.s_p = x[t - lp * p: t: p].reshape(lp * 2, 20, 20)
         self.s_q = x[t - lq * q: t: q].reshape(lq * 2, 20, 20)
+        self.lc = lc
+        self.lp = lp
+        self.lq = lq
         self.x_t = x[t]
 
 

@@ -23,10 +23,10 @@ class ResUnit(nn.Module):
         return x
 
 
-class STResNet(nn.Module):
+class SharedStructure(nn.Module):
 
     def __init__(self, res_layers, interval):
-        super(STResNet, self).__init__()
+        super(SharedStructure, self).__init__()
         self.res_layers = res_layers
 
         self.conv1 = nn.Conv2d(2 * interval, 64, 3)
@@ -46,6 +46,29 @@ class STResNet(nn.Module):
         x = self.conv2(x)
 
         return x
+
+
+class STResNet(nn.Module):
+
+    def __init__(self, lc, lp, lq):
+        super(STResNet, self).__init__()
+        self.wc = nn.Parameter(torch.ones((lc, 20, 20)))
+        self.wp = nn.parameter(torch.ones((lp, 20, 20)))
+        self.wq = nn.Parameter(torch.ones((lq, 20, 20)))
+        pass
+
+    def forward(self, train_data):
+        xc = SharedStructure(train_data.s_c, train_data.lc)
+        xp = SharedStructure(train_data.s_p, train_data.lp)
+        xq = SharedStructure(train_data.s_q, train_data.lq)
+        x_res = self.fusion(xc, xp, xq)
+        return x_res
+
+    def fusion(self, xc, xp, xq):
+        return self.wc.mul(xc) + self.wp.mul(xp) + self.wq.mul(xq)
+
+    def init_params(self):
+        pass
 
 
 class RMSELoss(nn.Module):
