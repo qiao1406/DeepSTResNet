@@ -1,5 +1,24 @@
 import h5py
 import torch
+from torch.utils.data import Dataset, DataLoader, TensorDataset
+
+
+class MyDataSet(Dataset):
+
+    def __init__(self, filename):
+        f = h5py.File(filename, 'r')
+        self.data = torch.from_numpy(f['data'].value)
+        f.close()
+
+    def __getitem__(self, lc, lp, lq, p, q, t):
+
+        if t < lq * q or t >= len(self.data):
+            raise IndexError("Index Overflow")
+
+        return TrainingInstance(self.data, lc, lp, lq, p, q, t)
+
+    def __len__(self):
+        return len(self.data)
 
 
 class TrainingInstance:
@@ -11,12 +30,11 @@ class TrainingInstance:
         self.x_t = x[t]
 
 
-def load_dataset(filename):
-    f = h5py.File(filename, 'r')
-    data = torch.from_numpy(f['data'].value)
-    date = torch.from_numpy(f['date'].value)
-    f.close()
+def split_data():
+    train_rate = 0.7
+    valid_rate = 0.2
+    test_rate = 1 - train_rate - valid_rate
 
-    return data, date
+
 
 
