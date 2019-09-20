@@ -1,11 +1,13 @@
 import numpy as np
 np.random.seed(1337)  # for reproducibility
 
+
 class MinMaxNormalization(object):
-    '''MinMax Normalization --> [-1, 1]
+    """MinMax Normalization --> [-1, 1]
        x = (x - min) / (max - min).
        x = x * 2 - 1
-    '''
+    """
+
     def __init__(self):
         pass
 

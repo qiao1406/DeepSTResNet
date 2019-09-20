@@ -1,17 +1,12 @@
-import torch.nn.functional as F
 from torch import nn
-from torch import optim
 import torch
 from torch import optim
-import time
 import numpy as np
-import copy
 from model import SoftAttention
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 import h5py
 import dataprocess
-import math
 from model import Lstm
 
 
@@ -32,6 +27,7 @@ def get_model():
     model_1 = SoftAttention(width,height,K,attnode)
     model_2 = Lstm(K,K)
     return model_1, model_2, optim.Adam(model_1.parameters(), lr=lr), optim.Adam(model_2.parameters(), lr=lr)
+
 
 def get_bases(Filename):
     f = h5py.File("output/"+Filename+".h5")

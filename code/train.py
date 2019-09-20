@@ -1,6 +1,5 @@
 import torch.optim as optim
-from dataset import *
-from model import *
+from code.model import *
 
 
 # def fusion(wc, wp, wq, xc, xp, xq):

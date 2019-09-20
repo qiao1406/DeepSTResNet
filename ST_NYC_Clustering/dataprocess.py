@@ -11,7 +11,6 @@ def load_data(T,train_day,len_test,len_recent,len_day,len_week):
     taximmn = MinMaxNormalization()
     bikemmn = MinMaxNormalization()
 
-
     data = np.zeros([48 * train_day,4, 20, 20])
     path = os.path.join(datapath, "bikeV2.h5")
     f = h5py.File(path)
@@ -53,7 +52,6 @@ def load_data(T,train_day,len_test,len_recent,len_day,len_week):
     depends[2].reverse()
     xxx = depends[0][0]
 
-
     for i in range(xxx, len(data_train)):
         x_recent = [data_train[i - j] for j in depends[0]]
         y = data_train[i][3:4]
@@ -86,7 +84,6 @@ def load_data(T,train_day,len_test,len_recent,len_day,len_week):
 
 def load_data_cluster(train_day, filename, channel, width, height):
 
-
     data = np.zeros([48 * train_day, height, width])
     path = os.path.join(datapath, filename)
     f = h5py.File(path)
@@ -94,7 +91,8 @@ def load_data_cluster(train_day, filename, channel, width, height):
     for i in range(48 * train_day):
         data[i] = xxx[i][channel]
     f.close()
-    return  data
+    return data
+
 
 def load_data_bases(train_day, filename, channel, slice, width, height, reduce):
     bikesta = Standard()
@@ -110,6 +108,7 @@ def load_data_bases(train_day, filename, channel, slice, width, height, reduce):
     f.close()
     return data, bikesta
 
+
 def load_data_CNN_bases(train_day, filename, channel, slice, width, height, reduce):
     bikesta = Standard()
     #
@@ -124,6 +123,7 @@ def load_data_CNN_bases(train_day, filename, channel, slice, width, height, redu
     f.close()
     return data, bikesta
 
+
 def load_data_CNN(train_day, filename, channel, width, height):
 
     data = np.zeros([48 * train_day,1, height, width])
@@ -133,4 +133,4 @@ def load_data_CNN(train_day, filename, channel, width, height):
     for i in range(48 * train_day):
         data[i][0][:] = xxx[i][channel]
     f.close()
-    return  data
+    return data

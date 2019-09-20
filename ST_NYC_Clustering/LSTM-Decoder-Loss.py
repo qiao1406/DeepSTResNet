@@ -1,20 +1,13 @@
-import torch.nn.functional as F
 from torch import nn
-from torch import optim
 import torch
 from torch import optim
-import time
 import numpy as np
-import copy
 from model import SoftAttention
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 import h5py
 import dataprocess
-import math
 from model import Lstm2
-from sklearn.decomposition import NMF
-
 
 K = 128
 width = 20

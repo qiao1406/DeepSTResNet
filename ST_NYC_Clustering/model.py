@@ -22,9 +22,9 @@ class SoftAttention(nn.Module):
         return z, y
 
 
-class cnn_autoencoder(nn.Module):
+class CNNAutoencoder(nn.Module):
     def __init__(self):
-        super(cnn_autoencoder, self).__init__()
+        super(CNNAutoencoder, self).__init__()
         self.encoder = nn.Sequential(nn.Conv2d(1, 20, (3, 3), stride=1, padding=0),
                                      nn.Conv2d(20, 20, (2, 2), stride=2, padding=0),
                                      nn.Conv2d(20, 1, (3, 3), stride=1, padding=0),
@@ -41,9 +41,9 @@ class cnn_autoencoder(nn.Module):
         return x
 
 
-class dense_autoencoder(nn.Module):
+class DenseAutoencoder(nn.Module):
     def __init__(self):
-        super(dense_autoencoder, self).__init__()
+        super(DenseAutoencoder, self).__init__()
         self.encoder = nn.Sequential(nn.Linear(50 * 50, 121)
 
 
@@ -63,6 +63,9 @@ class ResNet(nn.Module):
     def __init__(self, len):
         super(ResNet, self).__init__()
         self.cnn1 = nn.Conv2d()
+
+    def forward(self, x):
+        pass
 
 
 class Lstm(nn.Module):
@@ -189,7 +192,6 @@ class Lstm7(nn.Module):
         self.encoder = encoder
         for p in self.parameters():
             p.requires_grad = False
-
 
         self.lstm = nn.LSTM(input_size=input_size, hidden_size=output_size, num_layers=1, batch_first=True)
         self.height = height

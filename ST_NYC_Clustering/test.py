@@ -1,4 +1,4 @@
-
+import torch
 import random
 import h5py
 #
@@ -13,7 +13,8 @@ import h5py
 # random.seed(20)
 # random.shuffle(y)
 # print(y)
-f = h5py.File("output/SVDbases")
-s = f['s'][:]
-torch.from_numpy(data).float().to(device)
-f.close()
+# f = h5py.File("output/SVDbases")
+# s = f['s'][:]
+# torch.from_numpy(data).float().to(device)
+# f.close()
+

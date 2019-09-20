@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import datetime
 # f = h5py.File("I:/NYC/CitiBike/output/NYCBike_50x50_1slice.h5")
-f = h5py.File("E:\\PyCharm 2018.1.3\\workspace\\ST-NYC-Clustering\\data\\NewYork\\bikeV2.h5")
+f = h5py.File("E:\\PyCharm 2018.1.3\\workspace\\ST_NYC_Clustering\\data\\NewYork\\bikeV2.h5")
 
 dict = {}
 count = 0

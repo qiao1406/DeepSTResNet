@@ -1,17 +1,10 @@
-import torch.nn.functional as F
 from torch import nn
-from torch import optim
 import torch
 from torch import optim
-import time
 import numpy as np
-import copy
-from model import SoftAttention
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
-import h5py
 import dataprocess
-import math
 from model import Lstm4
 from sklearn.decomposition import NMF
 
@@ -28,9 +21,6 @@ bs = 32
 device = "cuda:2"
 
 
-
-
-
 loss_func = nn.MSELoss(reduction='mean')
 data = dataprocess.load_data_cluster(91, "bikeV2.h5", 0)
 
@@ -43,7 +33,6 @@ H = torch.from_numpy(model_1.components_).float().to(device)
 model_2 = Lstm4(K,K,H,height,width,device)
 model_2.to(device)
 opt2 = optim.Adam(model_2.parameters(), lr=lr)
-
 
 
 X_recent = []
@@ -63,12 +52,10 @@ X_train, X_test, Y_train, Y_test = X_recent[:-len_test], X_recent[-len_test:], Y
 X_train, Y_train, X_valid, Y_valid = X_train[:-len_val], Y_train[:-len_val], X_train[-len_val:], Y_train[-len_val:]
 
 
-
 train_ds = TensorDataset(X_train, Y_train)
 train_dl = DataLoader(train_ds, batch_size=bs, shuffle=True)
 valid_ds = TensorDataset(X_valid,Y_valid)
 valid_dl = DataLoader(valid_ds, batch_size=bs*2,shuffle=True)
-
 
 
 for epoch in range(epochs):
@@ -80,7 +67,6 @@ for epoch in range(epochs):
         loss.backward()
         opt2.step()
 
-
     with torch.no_grad():
         valid_loss = sum((loss_func(model_2(xb), yb) + 1e-6)**0.5 for xb,yb in valid_dl)
     print('Epoch {}/{} ,train loss: {:.4f}     valid loss {:.4f}'.format(epoch+1, epochs, loss, valid_loss/len(valid_dl)))
@@ -90,12 +76,12 @@ print("Finished Training")
 test_ds = TensorDataset(X_test, Y_test)
 test_dl = DataLoader(test_ds, batch_size=bs)
 data_pred = []
-loss = sum((loss_func(model_2(xb), yb)+1e-6)**0.5 for xb,yb in test_dl )
+loss = sum((loss_func(model_2(xb), yb)+1e-6)**0.5 for xb, yb in test_dl)
 for xb, yb in test_dl:
     yb_pred = model_2(xb)
     yb_pred = yb_pred.mm(H).view(-1,height,width)
     data_pred.append(yb_pred.cpu().detach().numpy())
-data_pred = torch.from_numpy(np.concatenate(data_pred,axis = 0)).float().to(device)
+data_pred = torch.from_numpy(np.concatenate(data_pred, axis=0)).float().to(device)
 data_real = torch.from_numpy(data[-len_test:]).float().to(device)
 loss = loss_func(data_pred, data_real) ** 0.5
 print(loss)

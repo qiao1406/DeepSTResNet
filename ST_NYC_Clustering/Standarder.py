@@ -1,10 +1,12 @@
 import numpy as np
 np.random.seed(1337)  # for reproducibility
 
+
 class Standard(object):
 
     def __init__(self):
-        pass
+        self.std = None
+        self.mean = None
 
     def fit(self, X):
         self.std = np.std(X)

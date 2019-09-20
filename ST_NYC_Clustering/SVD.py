@@ -1,20 +1,13 @@
-import torch.nn.functional as F
 from torch import nn
-from torch import optim
 import torch
 from torch import optim
-import time
 import numpy as np
 import copy
-from model import SoftAttention
 from torch.utils.data import DataLoader
 from torch.utils.data import TensorDataset
 import h5py
 import dataprocess
-import math
 from model import Lstm3
-from sklearn.decomposition import NMF
-import random
 
 K = 10
 width = 50
@@ -26,7 +19,7 @@ len_val = 48 * 14
 bs = 32
 device = "cuda:2"
 
-K_List = [i for i in range(1000,4000,50)]
+K_List = [121, 122]
 K_times = 2
 dataH5path = "NYCbike_50x50_1slice.h5"
 baseH5path = "NYCbike_50x50_8slice.h5"
@@ -34,17 +27,40 @@ outputpath = "output/SVD_50x50_stander.txt"
 reduce = 1
 
 
-
-
-
 def main():
     loss_func = nn.MSELoss(reduction='mean')
     data_bases, bikesta = dataprocess.load_data_bases(91, baseH5path, 0, 8, width, height, reduce)
+    data_bases = data_bases.reshape((-1, width * height))
+    # u, s, v = np.linalg.svd(data_bases)  # bases
+    #
+    # f = h5py.File("output/SVDbases", "w")
+    # f.create_dataset("u", u.shape, "f")
+    # f.create_dataset("s", s.shape, "f")
+    # f.create_dataset("v", v.shape, "f")
+    #
+    # f['u'][:] = u
+    # f['s'][:] = s
+    # f['v'][:] = v
+    # f.close()
+    # print("===" * 20 + "Enocding Finished")
+
+    f = h5py.File("output/SVDbases")
+    u = f['u'][:]
+    s = f['s'][:]
+    v = f['v'][:]
+    f.close()
+
+    H = np.dot(s[:K] * np.eye(K, K, 0), v[:K, :])
+    loss1 = loss_func(torch.from_numpy(np.dot(u[:,:2500], np.dot(s * np.eye(2500, 2500, 0), v[:2500,:]))).float().to(device),
+                      torch.from_numpy(data_bases).float().to(device))
+    loss2 = loss_func(torch.from_numpy(np.dot(u[:,:K], np.dot(s[:K]* np.eye(K, K, 0), v[:K,:]))).float().to(device),
+                      torch.from_numpy(data_bases).float().to(device))
+    print("loss1:{}    loss2:{}".format(loss1, loss2))
 
     # 求出权重序列
-    data = dataprocess.load_data_cluster(91, dataH5path, 0, width, height)
+    data = dataprocess.load_data_cluster(91, dataH5path, 0, width, height).reshape((-1, width * height))
     data = (data - bikesta.mean) / bikesta.std
-
+    W = np.dot(data, np.linalg.pinv(H))
     model_2 = Lstm3(K, K, torch.from_numpy(H).float().to(device), height, width, device).to(device)
     opt2 = optim.Adam(model_2.parameters(), lr=lr)
 
@@ -109,14 +125,14 @@ def main():
     data_pred = torch.cat(data_pred, 0).float().to(device)
     data_real = Y_test
     loss = loss_func(data_pred, data_real) ** 0.5
-    fwrite = open(outputpath, "a+")
-    fwrite.write("K: {}      loss: {:.4f}  true loss:{:.4f}\n".format(K, loss, loss * bikesta.std))
-    fwrite.close()
+    # fwrite = open(outputpath, "a+")
+    # fwrite.write("K: {}      loss: {:.4f}  true loss:{:.4f}\n".format(K, loss, loss * bikesta.std))
+    # fwrite.close()
     print("K: {}      loss: {:.4f}  true loss:{:.4f}".format(K, loss, loss * bikesta.std))
 
 
 if __name__ == '__main__':
-    for i in K_List:
+    for item in K_List:
         for x in range(K_times):
-            K = i
+            K = item
             main()
