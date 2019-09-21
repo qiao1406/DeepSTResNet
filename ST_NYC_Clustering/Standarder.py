@@ -1,4 +1,6 @@
 import numpy as np
+
+
 np.random.seed(1337)  # for reproducibility
 
 
@@ -11,7 +13,7 @@ class Standard(object):
     def fit(self, X):
         self.std = np.std(X)
         self.mean = np.mean(X)
-        print("std:", self.std, "mean:", self.mean)
+        print('std:', self.std, 'mean:', self.mean)
 
     def transform(self, X):
         X = 1. * (X - self.mean) / self.std

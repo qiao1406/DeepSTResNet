@@ -25,15 +25,16 @@ device = "cuda:2"
 
 # K_List = [i for i in range(80, 1000, 20)]
 # K_times = 2
-dataH5path = "NYCbike_50x50_1slice.h5"
-baseH5path = "NYCbike_50x50_8slice.h5"
+dataH5path = "NYCBike_50x50_1slice.h5"
+baseH5path = "NYCBike_50x50_8slice_train.h5"
 outputpath = "output/Autoencoder_50x50_stander.txt"
+train_days = 77
 reduce = 1
 
 
 def main():
     loss_func = nn.MSELoss(reduction='mean')
-    data_bases, bikesta = dataprocess.load_data_bases(91, baseH5path, 0, 8, width, height, reduce)
+    data_bases, bikesta = dataprocess.load_data_bases(train_days, baseH5path, 0, 8, width, height, reduce)
     data_bases = torch.from_numpy(data_bases).view(-1, width * height).float().to(device)
 
     model_1 = DenseAutoencoder().to(device)

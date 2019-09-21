@@ -5,6 +5,7 @@ from torch import nn
 
 
 class SoftAttention(nn.Module):
+
     def __init__(self, width, height, K, attnode):
         super(SoftAttention, self).__init__()
         self.lin1 = nn.Linear(K * width * height, attnode)
@@ -23,6 +24,7 @@ class SoftAttention(nn.Module):
 
 
 class CNNAutoencoder(nn.Module):
+
     def __init__(self):
         super(CNNAutoencoder, self).__init__()
         self.encoder = nn.Sequential(nn.Conv2d(1, 20, (3, 3), stride=1, padding=0),
@@ -60,6 +62,7 @@ class DenseAutoencoder(nn.Module):
 
 
 class ResNet(nn.Module):
+
     def __init__(self, len):
         super(ResNet, self).__init__()
         self.cnn1 = nn.Conv2d()
@@ -164,6 +167,7 @@ class Lstm5(nn.Module):
 
 # for  CNN ae
 class Lstm6(nn.Module):
+
     def __init__(self, input_size, output_size, decoder, height, width, device):
         super(Lstm6, self).__init__()
         self.decoder = decoder

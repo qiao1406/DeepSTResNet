@@ -1,23 +1,20 @@
+import copy
+import dataprocess
+import h5py
+import math
+import numpy as np
+import random
+import time
+import torch
 import torch.nn.functional as F
+from model import CNNAutoencoder, SoftAttention, Lstm6
+from sklearn.decomposition import NMF
 from torch import nn
 from torch import optim
-import torch
-from torch import optim
-import time
-import numpy as np
-import copy
-from model import SoftAttention
-from torch.utils.data import DataLoader
-from torch.utils.data import TensorDataset
-import h5py
-import dataprocess
-import math
-from model import Lstm6
-from sklearn.decomposition import NMF
-import random
-from model import CNNAutoencoder
-from model import CNNAutoencoder
+from torch.utils.data import DataLoader, TensorDataset
 
+
+# parameters
 K = 121
 width = 50
 height = 50
@@ -34,15 +31,16 @@ device = "cuda:2"
 
 # K_List = [i for i in range(80, 1000, 20)]
 # K_times = 2
-dataH5path = "NYCbike_50x50_1slice.h5"
-baseH5path = "NYCbike_50x50_8slice.h5"
-outputpath = "output/CNNAutoencoder_50x50_stander.txt"
+dataH5_path = 'NYCBike_50x50_1slice.h5'
+baseH5_path = 'NYCBike_50x50_8slice_train.h5'
+output_path = 'output/CNNAutoencoder_50x50_stander.txt'
 reduce = 1
+train_days = 77
 
 
 def main():
     loss_func = nn.MSELoss(reduction='mean')
-    data_bases, bikesta = dataprocess.load_data_CNN_bases(91, baseH5path, 0, 8, width, height, reduce)
+    data_bases, bike_sta = dataprocess.load_data_CNN_bases(train_days, baseH5_path, 0, 8, width, height, reduce)
     data_bases = torch.from_numpy(data_bases).float().to(device)
 
     model_1 = CNNAutoencoder().to(device)
@@ -50,7 +48,7 @@ def main():
     opt1 = optim.Adam(model_1.parameters(), lr=lr)
 
     ae_ds = TensorDataset(data_bases, data_bases)
-    ae_dl = DataLoader(ae_ds, batch_size=bs * 2, shuffle=True)
+    ae_dl = DataLoader(ae_ds, batch_size=(bs * 2), shuffle=True)
     for epoch in range(epochs_ae):
         for xb, yb in ae_dl:
             yb_pred = model_1(xb)
@@ -58,7 +56,7 @@ def main():
             opt1.zero_grad()
             loss.backward()
             opt1.step()
-        print("loss:{:.4f}   true loss:{:.4f}    epochs:{}".format(loss, loss * bikesta.std, epoch))
+        print("loss:{:.4f}   true loss:{:.4f}    epochs:{}".format(loss, loss * bike_sta.std, epoch))
 
     torch.save(model_1.encoder, "output/bases/CNN_bikepp_en")
     torch.save(model_1.decoder, "output/bases/CNN_bikepp_de")
@@ -70,8 +68,8 @@ def main():
     print(decoder)
 
     # 求出权重序列
-    data = dataprocess.load_data_CNN(91, dataH5path, 0, width, height)
-    data = (data - bikesta.mean) / bikesta.std
+    data = dataprocess.load_data_CNN(91, dataH5_path, 0, width, height)
+    data = (data - bike_sta.mean) / bike_sta.std
 
     W = encoder(torch.from_numpy(data).float().to(device)).cpu().detach().numpy()
     model_2 = Lstm6(K, K, decoder, lstm_height, lstm_width, device).to(device)
@@ -113,12 +111,13 @@ def main():
         with torch.no_grad():
             valid_loss = (loss_func(model_2(X_valid, decoder), Y_valid) + 1e-6) ** 0.5
         print('Epoch {}/{} ,train loss:{:.4f}  true loss:{:.4f}      valid loss:{:.4f}  val trueloss:{:.4f}'.format(
-            epoch + 1, epochs, (loss + 1e-6) ** 0.5, (loss + 1e-6) ** 0.5 * bikesta.std, valid_loss,
-            valid_loss * bikesta.std))
+            epoch + 1, epochs, (loss + 1e-6) ** 0.5, (loss + 1e-6) ** 0.5 * bike_sta.std, valid_loss,
+            valid_loss * bike_sta.std))
         if valid_loss <= best_loss:
             best_loss, best_model_wts, best_epoch = valid_loss, copy.deepcopy(model_2.state_dict()), epoch + 1
+
     print("Finished Training     best val loss:{:.4f}   true loss:{:.4f}      best epoch:{}".format(best_loss,
-                                                                                                    best_loss * bikesta.std,
+                                                                                                    best_loss * bike_sta.std,
                                                                                                     best_epoch))
     model_2.load_state_dict(best_model_wts)
 
@@ -133,10 +132,10 @@ def main():
     data_pred = torch.cat(data_pred, 0).float().to(device)
     data_real = Y_test
     loss = loss_func(data_pred, data_real) ** 0.5
-    # fwrite = open(outputpath, "a+")
-    # fwrite.write("K: {}      loss: {:.4f}  true loss:{:.4f}\n".format(K, loss, loss * bikesta.std))
-    # fwrite.close()
-    print("K: {}      loss: {:.4f}  true loss:{:.4f}".format(K, loss, loss * bikesta.std))
+    fwrite = open(output_path, "a+")
+    fwrite.write("K: {}      loss: {:.4f}  true loss:{:.4f}\n".format(K, loss, loss * bike_sta.std))
+    fwrite.close()
+    print("K: {}      loss: {:.4f}  true loss:{:.4f}".format(K, loss, loss * bike_sta.std))
 
 
 if __name__ == '__main__':

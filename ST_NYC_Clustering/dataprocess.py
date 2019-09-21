@@ -45,7 +45,7 @@ def load_data(T,train_day,len_test,len_recent,len_day,len_week):
     EF = []
     timestamps_Y = []
 
-    depends = [[8,7,6,5, 4, 3, 2, 1],
+    depends = [[8, 7, 6, 5, 4, 3, 2, 1],
                [1 * 48 * j for j in range(1, len_day + 1)],
                [7 * 48 * j for j in range(1, len_week + 1)]]
     depends[1].reverse()
@@ -94,34 +94,65 @@ def load_data_cluster(train_day, filename, channel, width, height):
     return data
 
 
-def load_data_bases(train_day, filename, channel, slice, width, height, reduce):
-    bikesta = Standard()
+def load_data_bases(train_day, filename, channel, slice_num, width, height, reduce, normalize=True):
+    """
+    加载基
+    :param train_day: 时间跨度
+    :param filename:
+    :param channel:
+    :param slice_num: 分片数
+    :param width:
+    :param height:
+    :param reduce:
+    :param normalize: 决定是否进行正则化
+    :return:
+    """
+    bike_sta = Standard()
     #
-    # bikesta = MinMaxNormalization()
-    data = np.zeros([(48 * train_day-reduce)*slice, height, width])
+    # bike_sta = MinMaxNormalization()
+    data = np.zeros([(48 * train_day - reduce) * slice_num, height, width])
     path = os.path.join(datapath, filename)
     f = h5py.File(path)
-    xxx = f['data'][:]
-    xxx = bikesta.fit_transform(xxx)
-    for i in range((48 * train_day-reduce)*slice):
-        data[i] = xxx[i][channel]
+    temp = f['data'][:]
+
+    if normalize:
+        temp = bike_sta.fit_transform(temp)
+
+    for i in range((48 * train_day - reduce) * slice_num):
+        data[i] = temp[i][channel]
+
     f.close()
-    return data, bikesta
+    return data, bike_sta
 
 
-def load_data_CNN_bases(train_day, filename, channel, slice, width, height, reduce):
-    bikesta = Standard()
+def load_data_CNN_bases(train_day, filename, channel, slice_num, width, height, reduce):
+    """
+
+    :param train_day:
+    :param filename:
+    :param channel:
+    :param slice_num:
+    :param width:
+    :param height:
+    :param reduce:
+    :return:
+    """
+    bike_sta = Standard()
     #
-    # bikesta = MinMaxNormalization()
-    data = np.zeros([(48 * train_day-reduce)*slice,1, height, width])
+    # bike_sta = MinMaxNormalization()
+    data = np.zeros([(48 * train_day-reduce) * slice_num, 1, height, width])
     path = os.path.join(datapath, filename)
+    print('[load_data_CNN_bases], load file:', path)
+
     f = h5py.File(path)
-    xxx = f['data'][:]
-    xxx = bikesta.fit_transform(xxx)
-    for i in range((48 * train_day-reduce)*slice):
-        data[i][0][:] = xxx[i][channel]
+    temp = f['data'][:]
+    temp = bike_sta.fit_transform(temp)
+
+    for i in range((48 * train_day-reduce) * slice_num):
+        data[i][0][:] = temp[i][channel]
+
     f.close()
-    return data, bikesta
+    return data, bike_sta
 
 
 def load_data_CNN(train_day, filename, channel, width, height):

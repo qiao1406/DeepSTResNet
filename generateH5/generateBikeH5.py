@@ -16,20 +16,20 @@ datemax = datetime.datetime(2016, 7, 1, 0, 0, 0)
 total_len = (datemax - datemin) / halfhour
 
 
-def getxy(lng,lat):
+def getxy(lng, lat):
     x = math.floor((lng - minlng)/gridlng)
     y = math.floor((maxlat - lat)/gridlat)
-    if (x == grid[1]):
+    if x == grid[1]:
         x = grid[1] - 1
-    if (y == grid[0]):
+    if y == grid[0]:
         y = grid[0] - 1
-    return x,y
+    return x, y
 
 
 def main():
     print(total_len)
     count = np.zeros([int(total_len), 2, grid[0], grid[1]])
-    for month in ["201604","201605","201606"]:
+    for month in ["201604", "201605", "201606"]:
         pathr = "I:\\NYC\\CitiBike\\"+month+"-citibike-tripdata.csv"
         print(pathr)
         f = open(pathr)
