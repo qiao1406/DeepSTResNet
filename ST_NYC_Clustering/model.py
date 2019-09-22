@@ -1,6 +1,7 @@
 import tensorly as tl
 import torch
 import torch.nn.functional as F
+from functools import reduce
 from torch import nn
 
 
@@ -220,3 +221,13 @@ class RMSELoss(nn.Module):
 
     def forward(self, y_hat, y):
         return torch.sqrt(self.mse(y_hat, y))
+
+
+class EuclidDist(nn.Module):
+
+    def __init__(self):
+        super(EuclidDist, self).__init__()
+
+    def forward(self, y_hat, y):
+        element_num = reduce(lambda a, b: a * b, y_hat.size())
+        return torch.dist(y_hat, y) / element_num

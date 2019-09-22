@@ -87,9 +87,9 @@ def load_data_cluster(train_day, filename, channel, width, height):
     data = np.zeros([48 * train_day, height, width])
     path = os.path.join(datapath, filename)
     f = h5py.File(path)
-    xxx = f['data'][:]
+    temp = f['data'][:]
     for i in range(48 * train_day):
-        data[i] = xxx[i][channel]
+        data[i] = temp[i][channel]
     f.close()
     return data
 

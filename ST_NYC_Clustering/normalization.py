@@ -1,4 +1,6 @@
 import numpy as np
+
+
 np.random.seed(1337)  # for reproducibility
 
 
@@ -9,16 +11,18 @@ class MinMaxNormalization(object):
     """
 
     def __init__(self):
+        self.min_val = None
+        self.max_val = None
         pass
 
     def fit(self, X):
-        self._min = X.min()
-        self._max = X.max()
-        print("min:", self._min, "max:", self._max)
+        self.min_val = X.min()
+        self.max_val = X.max()
+        print("min:", self.min_val, "max:", self.max_val)
 
     def transform(self, X):
-        X = 1. * (X - self._min) / (self._max - self._min)
-        X = X * 2. - 1.
+        X = 1.0 * (X - self.min_val) / (self.max_val - self.min_val)
+        X = X * 2.0 - 1.0
         return X
 
     def fit_transform(self, X):
@@ -26,9 +30,9 @@ class MinMaxNormalization(object):
         return self.transform(X)
 
     def inverse_transform(self, X):
-        X = (X + 1.) / 2.
-        X = 1. * X * (self._max - self._min) + self._min
+        X = (X + 1.0) / 2.0
+        X = 1.0 * X * (self.max_val - self.min_val) + self.min_val
         return X
 
     def maxmin(self):
-        return self._max-self._min
+        return self.max_val - self.min_val
