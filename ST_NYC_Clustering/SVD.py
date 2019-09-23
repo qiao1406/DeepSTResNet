@@ -51,7 +51,6 @@ def perform_svd(data):
 
 
 def main():
-
     loss_func = EuclidDist()
     data_bases, bike_sta = dataprocess.load_data_bases(train_days, baseH5_path, 0, 8, width, height, reduce)
     data_bases = data_bases.reshape((-1, width * height))
@@ -124,15 +123,19 @@ def main():
         with torch.no_grad():
             valid_loss = loss_func(model_2(X_valid), Y_valid)
 
-        print('Epoch {}/{} ,train loss:{:.4f}  true loss:{:.4f}      valid loss:{:.4f}  val trueloss:{:.4f}'.format(
-            epoch + 1, epochs, loss + 1e-6, (loss + 1e-6) * bike_sta.std, valid_loss,
-            valid_loss * bike_sta.std))
+        print('Epoch {}/{} ,train loss:{:.4f}  true loss:{:.4f}      '
+              'valid loss:{:.4f}  val trueloss:{:.4f}'.format(epoch + 1,
+                                                              epochs,
+                                                              loss + 1e-6,
+                                                              (loss + 1e-6) * bike_sta.std,
+                                                              valid_loss,
+                                                              valid_loss * bike_sta.std))
+
         if valid_loss <= best_loss:
             best_loss, best_model_wts, best_epoch = valid_loss, copy.deepcopy(model_2.state_dict()), epoch + 1
 
-    print("Finished Training     best val loss:{:.4f}   true loss:{:.4f}      best epoch:{}".format(best_loss,
-                                                                                                    best_loss * bike_sta.std,
-                                                                                                    best_epoch))
+    print('Finished Training     best val loss:{:.4f}   true loss:{:.4f}  '
+          'best epoch:{}'.format(best_loss, best_loss * bike_sta.std, best_epoch))
     model_2.load_state_dict(best_model_wts)
 
     test_ds = TensorDataset(X_test, Y_test)

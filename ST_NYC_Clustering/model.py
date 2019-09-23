@@ -1,7 +1,6 @@
 import tensorly as tl
 import torch
 import torch.nn.functional as F
-from functools import reduce
 from torch import nn
 
 
@@ -229,5 +228,4 @@ class EuclidDist(nn.Module):
         super(EuclidDist, self).__init__()
 
     def forward(self, y_hat, y):
-        element_num = reduce(lambda a, b: a * b, y_hat.size())
-        return torch.dist(y_hat, y) / element_num
+        return torch.dist(y_hat, y)
