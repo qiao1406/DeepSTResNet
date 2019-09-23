@@ -3,7 +3,7 @@ import dataprocess
 import h5py
 import numpy as np
 import torch
-from model import EuclidDist
+from model import EuclidDist, RMSELoss
 from model import Lstm3
 from torch import optim
 from torch.utils.data import DataLoader
@@ -72,7 +72,7 @@ def main():
     loss2 = loss_func(torch.from_numpy(np.dot(u[:, :K], np.dot(s[:K] * np.eye(K, K), v[:K, :]))).float().to(device),
                       torch.from_numpy(data_bases).float().to(device)
                       )
-    print("loss1:{}    loss2:{}".format(loss1, loss2))
+    print("loss1: {}    loss2: {}".format(loss1, loss2))
 
     # 求出权重序列，这里是从整个的数据集中提取的
     data = dataprocess.load_data_cluster(full_days, dataH5_path, 0, width, height).reshape((-1, width * height))
@@ -112,9 +112,11 @@ def main():
     best_loss, best_model_wts, best_epoch = 999, copy.deepcopy(model_2.state_dict()), -1
     for epoch in range(epochs):
         model_2.train()
+        loss = 0
         for xb, yb in train_dl:
             yb_pred = model_2(xb)
             loss = loss_func(yb_pred, yb)
+            # print(loss, loss * bike_sta.std)
             opt2.zero_grad()
             loss.backward()
             opt2.step()
@@ -126,8 +128,8 @@ def main():
         print('Epoch {}/{} ,train loss:{:.4f}  true loss:{:.4f}      '
               'valid loss:{:.4f}  val trueloss:{:.4f}'.format(epoch + 1,
                                                               epochs,
-                                                              loss + 1e-6,
-                                                              (loss + 1e-6) * bike_sta.std,
+                                                              loss,
+                                                              loss * bike_sta.std,
                                                               valid_loss,
                                                               valid_loss * bike_sta.std))
 

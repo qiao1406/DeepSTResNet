@@ -228,4 +228,5 @@ class EuclidDist(nn.Module):
         super(EuclidDist, self).__init__()
 
     def forward(self, y_hat, y):
-        return torch.dist(y_hat, y)
+        # return torch.dist(y_hat, y) / len(y_hat)
+        return torch.sqrt(torch.sum((y_hat - y) ** 2)) / len(y_hat)
