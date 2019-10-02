@@ -55,7 +55,6 @@ class STResNet(nn.Module):
         self.wc = nn.Parameter(torch.ones((lc, 20, 20)))
         self.wp = nn.parameter(torch.ones((lp, 20, 20)))
         self.wq = nn.Parameter(torch.ones((lq, 20, 20)))
-        pass
 
     def forward(self, train_data):
         xc = SharedStructure(train_data.s_c, train_data.lc)

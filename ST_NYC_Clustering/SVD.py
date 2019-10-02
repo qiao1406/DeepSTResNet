@@ -1,5 +1,6 @@
 import copy
 import dataprocess
+import datetime
 import h5py
 import numpy as np
 import torch
@@ -17,13 +18,13 @@ epochs = 300
 len_test = 48 * 14
 len_val = 48 * 14
 bs = 32
-device = "cuda:2"
+device = 'cuda:2'
 
 K_List = [121, 122]
 K_times = 2
-dataH5_path = "NYCBike_50x50_1slice.h5"
-baseH5_path = "NYCBike_50x50_8slice_train.h5"
-output_path = "output/SVD_50x50_stander.txt"
+dataH5_path = 'NYCBike_50x50_1slice.h5'
+baseH5_path = 'NYCBike_50x50_8slice_train.h5'
+output_path = 'output/SVD_50x50_stander.txt'
 svd_path = 'output/SVDbases'
 full_days = 91  # 整个数据集的时间跨度
 train_days = 77  # 训练集的时间跨度
@@ -52,6 +53,7 @@ def perform_svd(data):
 
 def main():
     loss_func = EuclidDist()
+    # loss_func = RMSELoss()
     data_bases, bike_sta = dataprocess.load_data_bases(train_days, baseH5_path, 0, 8, width, height, reduce)
     data_bases = data_bases.reshape((-1, width * height))
 
@@ -72,7 +74,7 @@ def main():
     loss2 = loss_func(torch.from_numpy(np.dot(u[:, :K], np.dot(s[:K] * np.eye(K, K), v[:K, :]))).float().to(device),
                       torch.from_numpy(data_bases).float().to(device)
                       )
-    print("loss1: {}    loss2: {}".format(loss1, loss2))
+    print('loss1: {}    loss2: {}'.format(loss1, loss2))
 
     # 求出权重序列，这里是从整个的数据集中提取的
     data = dataprocess.load_data_cluster(full_days, dataH5_path, 0, width, height).reshape((-1, width * height))
@@ -125,7 +127,7 @@ def main():
         with torch.no_grad():
             valid_loss = loss_func(model_2(X_valid), Y_valid)
 
-        print('Epoch {}/{} ,train loss:{:.4f}  true loss:{:.4f}      '
+        print('Epoch {}/{}, train loss:{:.4f}  true loss:{:.4f}      '
               'valid loss:{:.4f}  val trueloss:{:.4f}'.format(epoch + 1,
                                                               epochs,
                                                               loss,
@@ -151,13 +153,19 @@ def main():
     data_pred = torch.cat(data_pred, 0).float().to(device)
     data_real = Y_test
     loss = loss_func(data_pred, data_real)
-    fwrite = open(output_path, "a+")
-    fwrite.write("K: {}      loss: {:.4f}  true loss:{:.4f}\n".format(K, loss, loss * bike_sta.std))
-    fwrite.close()
-    print("K: {}      loss: {:.4f}  true loss:{:.4f}".format(K, loss, loss * bike_sta.std))
+
+    fw = open(output_path, 'a+')
+    fw.write('K: {}      loss: {:.4f}  true loss:{:.4f}\n'.format(K, loss, loss * bike_sta.std))
+    fw.close()
+    print('K: {}      loss: {:.4f}  true loss:{:.4f}'.format(K, loss, loss * bike_sta.std))
 
 
 if __name__ == '__main__':
+
+    fwrite = open(output_path, 'a+')
+    fwrite.write('Train time' + str(datetime.datetime.now()) + '\n')
+    fwrite.close()
+
     for item in K_List:
         for x in range(K_times):
             K = item
