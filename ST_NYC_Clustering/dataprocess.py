@@ -7,7 +7,7 @@ from Standarder import Standard
 datapath = "data/NewYork"
 
 
-def load_data(T,train_day,len_test,len_recent,len_day,len_week):
+def load_data(T, train_day, len_test, len_recent, len_day, len_week):
     taximmn = MinMaxNormalization()
     bikemmn = MinMaxNormalization()
 
@@ -79,7 +79,7 @@ def load_data(T,train_day,len_test,len_recent,len_day,len_week):
     # print(xxx.shape)
     X_train = XR_train
     X_test = XR_test
-    return X_train, Y_train, EF_train ,X_test, Y_test, EF_test, timestamps_train, timestamps_test, taximmn, bikemmn , data
+    return X_train, Y_train, EF_train, X_test, Y_test, EF_test, timestamps_train, timestamps_test, taximmn, bikemmn , data
 
 
 def load_data_cluster(train_day, filename, channel, width, height):
@@ -157,11 +157,19 @@ def load_data_CNN_bases(train_day, filename, channel, slice_num, width, height, 
 
 def load_data_CNN(train_day, filename, channel, width, height):
 
-    data = np.zeros([48 * train_day,1, height, width])
+    data = np.zeros([48 * train_day, 1, height, width])
     path = os.path.join(datapath, filename)
     f = h5py.File(path)
-    xxx = f['data'][:]
+    temp = f['data'][:]
     for i in range(48 * train_day):
-        data[i][0][:] = xxx[i][channel]
+        data[i][0][:] = temp[i][channel]
+    f.close()
+    return data
+
+
+def load_train_data(train_day, filename):
+    path = os.path.join(datapath, filename)
+    f = h5py.File(path)
+    data = f['data'][:48 * train_day]
     f.close()
     return data
